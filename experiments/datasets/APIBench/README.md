@@ -1,11 +1,5 @@
----
-license: apache-2.0
-language:
-- en
-tags:
-- api
----
 # Gorilla: Large Language Model Connected with Massive APIs
+
 By Shishir G. Patil, Tianjun Zhang, Xin Wang, and Joseph E. Gonzalez  ([Project Website](https://shishirpatil.github.io/gorilla/))
 
 [![arXiv](https://img.shields.io/badge/arXiv-2305.15334-<COLOR>.svg?style=flat-square)](https://arxiv.org/abs/2305.15334)  [![Discord](https://img.shields.io/discord/1111172801899012102?label=Discord&logo=discord&logoColor=green&style=flat-square)](https://discord.gg/3apqwwME) [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1DEBPsccVLF_aUnmD0FwPeHFrtdC0QIUP?usp=sharing)
@@ -20,6 +14,5 @@ By Shishir G. Patil, Tianjun Zhang, Xin Wang, and Joseph E. Gonzalez  ([Project 
 
 Gorilla LLM (UC Berkeley)
 
----
-license: apache-2.0
----
+### Original Dataset Link
+[APIBench](https://huggingface.co/datasets/gorilla-llm/APIBench)
