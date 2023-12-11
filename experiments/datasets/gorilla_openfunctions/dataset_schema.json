@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "properties": {
+    "question": {
+      "type": "string",
+      "description": "The user's question or task description."
+    },
+    "function": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the function to be called."
+        },
+        "api_call": {
+          "type": "string",
+          "description": "The API call associated with the function."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the function."
+        },
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "The type of parameters (e.g., object, array)."
+            },
+            "properties": {
+              "type": "object",
+              "description": "Properties of the parameters if applicable."
+            },
+            "required": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of required parameters."
+            }
+          },
+          "required": ["type", "properties", "required"]
+        }
+      },
+      "required": ["name", "api_call", "description", "parameters"]
+    },
+    "model_answer": {
+      "type": "string",
+      "description": "The model-generated answer or function call based on the task."
+    }
+  },
+  "required": ["question", "function", "model_answer"]
+}
