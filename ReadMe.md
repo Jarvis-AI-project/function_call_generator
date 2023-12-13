@@ -2,6 +2,13 @@
 
 ## Project Roadmap
 
+## [Function Calling Leaderboard](https://huggingface.co/spaces/Nexusflow/Nexus_Function_Calling_Leaderboard)
+
+## Some Organization working on this problem
+- [Nexusflow](https://huggingface.co/Nexusflow)
+- [Glaive](https://huggingface.co/glaveai)
+- [Issak Carter](https://huggingface.co/Isaak-Carter)
+
 ## Citation
 
 ```text
