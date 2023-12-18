@@ -5,7 +5,7 @@
 ```json
 {
   "user_query": "Find a coffee shop near me with free Wi-Fi in San Francisco.",
-  "functions" : [
+  "functions": [
     {
       "name": "Coffee Shop Locator",
       "function": "coffee_shop.find_nearby",
@@ -24,7 +24,12 @@
             "required": false,
             "items": {
               "type": "string",
-              "enum": ["Wi-Fi", "Outdoor Seating", "Bakery", "Vegetarian Options"]
+              "enum": [
+                "Wi-Fi",
+                "Outdoor Seating",
+                "Bakery",
+                "Vegetarian Options"
+              ]
             },
             "description": "Preferred amenities."
           }
@@ -32,29 +37,14 @@
       }
     }
   ],
-  "model_answer": (according to the model)
-}
-```
-
-## Response Format-1 (OPEN-AI) (`Recommended`)
-
-```json
-{
-  "model_answer": {
-    "function": "coffee_shop.find_nearby",
+  "model_answer_openai": {
+    "api_call": "coffee_shop.find_nearby",
     "parameters": {
       "location": "San Francisco",
       "amenities": ["Wi-Fi"]
     }
-  }
-}
-```
-
-## Response Format-2 (HuggingFace)
-
-```json
-{
-  "model_answer": "coffee_shop.find_nearby(location=\"San Francisco\", amenities=[\"Wi-Fi\"])"
+  },
+  "model_answer_normal": "coffee_shop.find_nearby(location=\"San Francisco\", amenities=[\"Wi-Fi\"])"
 }
 ```
 
