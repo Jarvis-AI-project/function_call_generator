@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "user_query": {
+      "type": "string",
+      "minLength": 50,
+      "maxLength": 500,
+      "pattern": "^[a-zA-Z0-9.?\\- ]*$",
+      "description": "User's query",
+      "example": "Find a coffee shop near me with free Wi-Fi in San Francisco."
+    },
+    "functions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z ]*$",
+            "description": "Name of the function",
+            "example": "Coffee Shop Locator"
+          },
+          "api_call": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z0-9._ ]*$",
+            "description": "Function which model chooses to call",
+            "example": "coffee_shop.find_nearby"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 500,
+            "pattern": "^[a-zA-Z0-9.\\- ]*$",
+            "description": "Description of the function",
+            "example": "Locate nearby coffee shops based on specific criteria like Wi-Fi availability."
+          },
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["object"],
+                "description": "Type of parameters"
+              },
+              "properties": {
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z_]*$": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["string", "boolean", "array"],
+                        "description": "Type of parameter"
+                      },
+                      "description": {
+                        "type": "string",
+                        "minLength": 10,
+                        "maxLength": 100,
+                        "pattern": "^[a-zA-Z0-9.\\- ]*$",
+                        "description": "Description of the parameter"
+                      }
+                    },
+                    "minProperties": 2,
+                    "required": ["type", "description"]
+                  }
+                },
+                "minProperties": 1,
+                "description": "Properties of the parameters"
+              },
+              "required": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["type", "properties", "required"]
+          }
+        },
+        "additionalProperties": false,
+        "required": ["name", "api_call", "description", "parameters"]
+      },
+      "minItems": 1,
+      "maxItems": 5,
+      "description": "List of functions which model can call",
+      "example": [
+        {
+          "name": "Coffee Shop Locator",
+          "api_call": "coffee_shop.find_nearby",
+          "description": "Locate nearby coffee shops based on specific criteria like Wi-Fi availability.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string",
+                "description": "The city and state, e.g. San Francisco, CA"
+              },
+              "amenities": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "Wi-Fi",
+                    "Outdoor Seating",
+                    "Bakery",
+                    "Vegetarian Options"
+                  ]
+                },
+                "description": "Preferred amenities."
+              }
+            },
+            "required": ["location"]
+          }
+        }
+      ]
+    },
+    "model_answer_openai": {
+      "type": "object",
+      "properties": {
+        "api_call": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 50,
+          "pattern": "^[a-zA-Z0-9._ ]*$",
+          "description": "Function which model chooses to call",
+          "example": "coffee_shop.find_nearby"
+        },
+        "parameters": {
+          "type": "object"
+        }
+      },
+      "required": ["api_call", "parameters"]
+    },
+    "model_answer_normal": {
+      "type": "string",
+      "minLength": 50,
+      "maxLength": 100,
+      "pattern": "^[a-zA-Z0-9\\[\\]().,=_\"\\- ]*$",
+      "description": "Model's Response in pythonic function call format",
+      "example": "coffee_shop.find_nearby(location=\"San Francisco\", amenities=[\"Wi-Fi\"])"
+    }
+  },
+  "required": [
+    "user_query",
+    "functions",
+    "model_answer_openai",
+    "model_answer_normal"
+  ]
+}
