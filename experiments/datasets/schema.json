@@ -4,9 +4,9 @@
   "properties": {
     "user_query": {
       "type": "string",
-      "minLength": 50,
-      "maxLength": 500,
-      "pattern": "^[a-zA-Z0-9.?\\- ]*$",
+      "minLength": 30,
+      "maxLength": 150,
+      "pattern": "^[a-zA-Z0-9.?,\\- ]*$",
       "description": "User's query",
       "example": "Find a coffee shop near me with free Wi-Fi in San Francisco."
     },
@@ -34,7 +34,7 @@
           "description": {
             "type": "string",
             "minLength": 20,
-            "maxLength": 500,
+            "maxLength": 100,
             "pattern": "^[a-zA-Z0-9.\\- ]*$",
             "description": "Description of the function",
             "example": "Locate nearby coffee shops based on specific criteria like Wi-Fi availability."
@@ -62,7 +62,7 @@
                         "type": "string",
                         "minLength": 10,
                         "maxLength": 100,
-                        "pattern": "^[a-zA-Z0-9.\\- ]*$",
+                        "pattern": "^[a-zA-Z0-9.,\\- ]*$",
                         "description": "Description of the parameter"
                       }
                     },
@@ -76,8 +76,13 @@
               "required": {
                 "type": "array",
                 "items": {
-                  "type": "string"
-                }
+                  "type": "string",
+                  "pattern": "^[a-z_]*$",
+                  "description": "Required parameter"
+                },
+                "minItems": 1,
+                "description": "Required parameters",
+                "example": ["location"]
               }
             },
             "required": ["type", "properties", "required"]
@@ -127,25 +132,57 @@
           "type": "string",
           "minLength": 20,
           "maxLength": 50,
-          "pattern": "^[a-zA-Z0-9._ ]*$",
+          "pattern": "^[a-z._ ]*$",
           "description": "Function which model chooses to call",
           "example": "coffee_shop.find_nearby"
         },
         "parameters": {
-          "type": "object"
+          "type": "object",
+          "patternProperties": {
+            "^[a-z_]*$": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9.,\\- ]*$",
+                  "description": "Parameter of the function",
+                  "example": "San Francisco"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9.\\- ]*$"
+                  },
+                  "description": "Parameter of the function",
+                  "example": ["Wi-Fi"]
+                },
+                {
+                  "type": "boolean",
+                  "enum": [true, false],
+                  "description": "Parameter of the function",
+                  "example": true
+                }
+              ]
+            }
+          },
+          "minProperties": 1,
+          "additionalProperties": false,
+          "description": "Parameters of the function"
         }
       },
+      "additionalProperties": false,
       "required": ["api_call", "parameters"]
     },
     "model_answer_normal": {
       "type": "string",
-      "minLength": 50,
+      "minLength": 30,
       "maxLength": 100,
       "pattern": "^[a-zA-Z0-9\\[\\]().,=_\"\\- ]*$",
       "description": "Model's Response in pythonic function call format",
       "example": "coffee_shop.find_nearby(location=\"San Francisco\", amenities=[\"Wi-Fi\"])"
     }
   },
+  "additionalProperties": false,
   "required": [
     "user_query",
     "functions",
