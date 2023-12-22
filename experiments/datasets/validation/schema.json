@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "user_query": {
@@ -61,7 +61,7 @@
                       "description": {
                         "type": "string",
                         "minLength": 10,
-                        "maxLength": 100,
+                        "maxLength": 200,
                         "pattern": "^[a-zA-Z0-9.,\\- ]*$",
                         "description": "Description of the parameter"
                       }
@@ -130,17 +130,17 @@
       "properties": {
         "api_call": {
           "type": "string",
-          "minLength": 20,
+          "minLength": 10,
           "maxLength": 50,
-          "pattern": "^[a-z._ ]*$",
+          "pattern": "^[a-z][a-z0-9._ ]*$",
           "description": "Function which model chooses to call",
           "example": "coffee_shop.find_nearby"
         },
         "parameters": {
           "type": "object",
           "patternProperties": {
-            "^[a-z_]*$": {
-              "oneOf": [
+            "^[a-z][a-z0-9_]*$": {
+              "anyOf": [
                 {
                   "type": "string",
                   "pattern": "^[a-zA-Z0-9.,\\- ]*$",
@@ -176,8 +176,8 @@
     "model_answer_normal": {
       "type": "string",
       "minLength": 30,
-      "maxLength": 100,
-      "pattern": "^[a-zA-Z0-9\\[\\]().,=_\"\\- ]*$",
+      "maxLength": 200,
+      "pattern": "^[a-zA-Z0-9\\[\\]().,=_\"'\\- ]*$",
       "description": "Model's Response in pythonic function call format",
       "example": "coffee_shop.find_nearby(location=\"San Francisco\", amenities=[\"Wi-Fi\"])"
     }
