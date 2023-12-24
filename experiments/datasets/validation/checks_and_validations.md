@@ -1,4 +1,7 @@
-# Checks and Validations
+# Checks and Validations (Old Approach)
+
+>> **THIS IS OUTDATED PLEASE UPDATE**
+>>
 
 ## 1. User Query
 
