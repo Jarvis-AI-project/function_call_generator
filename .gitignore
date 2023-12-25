@@ -1,3 +1,5 @@
 .env
 *.pyc
 .DS_Store
+experiments/datasets/validation/test.ipynb
+experiments/datasets/synthetic_generation/Generate_dataset.ipynb
