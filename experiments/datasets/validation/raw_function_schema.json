@@ -4,14 +4,6 @@
   "properties": {
     "name": {
       "type": "string",
-      "minLength": 5,
-      "maxLength": 50,
-      "pattern": "^[a-zA-Z ]*$",
-      "description": "Name of the function",
-      "example": "Coffee Shop Locator"
-    },
-    "api_call": {
-      "type": "string",
       "minLength": 10,
       "maxLength": 50,
       "pattern": "^[a-zA-Z0-9._ ]*$",
@@ -76,5 +68,5 @@
     }
   },
   "additionalProperties": false,
-  "required": ["name", "api_call", "description", "parameters"]
+  "required": ["name", "description", "parameters"]
 }
