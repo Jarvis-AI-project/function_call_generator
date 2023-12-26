@@ -2,12 +2,11 @@
 This script validates the schema of a json document using `schema.json` file.
 """
 
-import json
 from jsonschema import validate, ValidationError, SchemaError
 
 def validate_schema(
     document: dict,
-    schema: dict = json.load(open("schema.json", "r", encoding="utf-8"))
+    schema: dict
 ):
     """
     Validates the schema of a json document using `schema.json` file.

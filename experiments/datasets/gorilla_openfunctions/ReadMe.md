@@ -1,6 +1,4 @@
-# Steps that are followed to generate synthetic dataset (ACTION PLAN): 😊😎😊
-
-## 1. Dump dataset existing datasets to MongoDB.
+# 1. Dump dataset existing datasets to MongoDB.
 
 ### 1.1 Dump  `gorilla_openfunctions` (`test.jsonl` and `train.jsonl`) [12,237].
 
@@ -31,5 +29,3 @@ Format:
     "embeding": []
 )
 ```
-
-## 2. Generate hypothetical functions (using real functions from dataset)

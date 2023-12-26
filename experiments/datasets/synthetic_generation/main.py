@@ -1,29 +1,24 @@
-# """
-# This WebUI is used to built so that humans and AI can collaborate to validate data.
-# """
-import pymongo
-import json
+"""
+This WebUI is used to built so that humans and AI can collaborate to generate synthetic dataset.
+"""
 import os
-from jsonschema import validate, ValidationError, SchemaError
+import pymongo
 import gradio as gr
+
 import google.generativeai as genai
+genai.configure(api_key=os.environ["GOOGLE_MAKERSUITE_API_KEY"])
+
 from dotenv import load_dotenv
 load_dotenv(".env")
 
 
-def save_to_database(data):
+_URI = f"mongodb://{os.environ['MONGODB_USERNAME']}:{os.environ['MONGODB_PASSWORD']}@{os.environ['MONGODB_HOST']}:{os.environ['MONGODB_PORT']}/{os.environ['MONGODB_DATABASE']}"
 
-    _URI = f"mongodb://{os.environ['MONGODB_USERNAME']}:{os.environ['MONGODB_PASSWORD']}@{os.environ['MONGODB_HOST']}:{os.environ['MONGODB_PORT']}/{os.environ['MONGODB_DATABASE']}"
-    print(_URI)
-    client = pymongo.MongoClient(_URI)
-    db = client["function_calling"]
+client = pymongo.MongoClient(_URI)
+db = client[os.environ["MONGODB_DATABASE"]]
 
 
 def gemini_api(prompt: str, history):
-    """
-    This function is used to call the Gemini API.
-    """
-    genai.configure(api_key="AIzaSyBaYulzAX6zbLPZSbzU2CPBpb_lvoQ9x_Q")
     generation_config = {
         "temperature": 0.9,
         "top_p": 1,
@@ -71,8 +66,9 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
 
     with gr.Row():
         with gr.Column():
-            gr.ChatInterface(chatbot=bot1, fn=gemini_api,
-                             title="Function Calling")
+            gr.ChatInterface(chatbot=bot1, fn=gemini_api, title="Function Calling")
+            # create a Test Case with symbol and input
+
         with gr.Column():
             gr.ChatInterface(chatbot=bot2, fn=gemini_api, title="Response")
 
