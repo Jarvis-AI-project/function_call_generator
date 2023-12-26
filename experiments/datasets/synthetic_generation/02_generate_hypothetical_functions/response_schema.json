@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "api_call": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 50,
+      "pattern": "^[a-z][a-z0-9._ ]*$",
+      "description": "Function which model chooses to call",
+      "example": "coffee_shop.find_nearby"
+    },
+    "parameters": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9.,\\- ]*$",
+              "description": "Parameter of the function",
+              "example": "San Francisco"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9.\\- ]*$"
+              },
+              "description": "Parameter of the function",
+              "example": ["Wi-Fi"]
+            },
+            {
+              "type": "boolean",
+              "enum": [true, false],
+              "description": "Parameter of the function",
+              "example": true
+            },
+            {
+              "type": "number",
+              "description": "Parameter of the function",
+              "example": 5
+            }
+          ]
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false,
+      "description": "Parameters of the function"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["api_call", "parameters"]
+}

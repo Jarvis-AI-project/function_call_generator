@@ -32,14 +32,4 @@ Format:
 )
 ```
 
-> Insights of `raw_functions`:
->> Max length of function: __
->> Average length of function: __
->> Min length of function: __
-
-
 ## 2. Generate hypothetical functions (using real functions from dataset)
-
-### 2.2 Verify functions from schema.
-
-### 2.3
