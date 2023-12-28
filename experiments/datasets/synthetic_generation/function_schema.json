@@ -43,6 +43,10 @@
                   "maxLength": 200,
                   "pattern": "^[a-zA-Z0-9.,\\- ]*$",
                   "description": "Description of the parameter"
+                },
+                "example": {
+                  "type": ["string", "boolean", "array", "number"],
+                  "description": "Example of the parameter"
                 }
               },
               "minProperties": 2,
