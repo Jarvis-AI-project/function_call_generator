@@ -30,62 +30,6 @@ FUNCTIONS: [
             }
         },
         "required": ["location"],
-    },
-    {
-        "name": "coffee_shop.find_best",
-        "description": "Find the best coffee shop according to user's preferences",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "location": {
-                    "type": "string",
-                    "description": "The location to search for coffee shops. e.g. 'San Francisco, CA'"
-                },
-                "aminities": {
-                    "type": "array",
-                    "description": "The aminities that the coffee shop should have. e.g. ['wifi', 'outlets']",
-                    "items": {
-                        "type": "string",
-                        "enum": ["wifi", "outlets", "food", "drinks", "seating"]
-                    }
-                },
-                "rating": {
-                    "type": "number",
-                    "description": "The minimum rating of the coffee shop. e.g. 4.5"
-                }
-            }
-        },
-        "required": ["location"],
-    },
-    {
-        "name": "coffee_shop.find_best_in_range",
-        "description": "Find the best coffee shop within a given range according to user's preferences",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "location": {
-                    "type": "string",
-                    "description": "The location to search for coffee shops. e.g. 'San Francisco, CA'"
-                },
-                "aminities": {
-                    "type": "array",
-                    "description": "The aminities that the coffee shop should have. e.g. ['wifi', 'outlets']",
-                    "items": {
-                        "type": "string",
-                        "enum": ["wifi", "outlets", "food", "drinks", "seating"]
-                    }
-                },
-                "rating": {
-                    "type": "number",
-                    "description": "The minimum rating of the coffee shop. e.g. 4.5"
-                },
-                "range": {
-                    "type": "number",
-                    "description": "The range in miles from the given location. e.g. 5"
-                }
-            }
-        },
-        "required": ["location"],
     }
 ]
 USER_QUERY: "Find a coffee shop in California that has wifi and outlets"
