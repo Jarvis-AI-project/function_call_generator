@@ -25,11 +25,12 @@ ASSISTANT: Yup, `<calender>` `</s>` Mon-2020-04-20 `</calender>`twenty twenty is
 ---
 
 ### Calculator
-- Addition
-- Substraction
-- Multiplication
-- Division
-- Power (^.5 for square root)
+
+- Addition (+)
+- Substraction (-)
+- Multiplication (*)
+- Division ()
+- Power (**) (^.5 for square root)
 
 ---
 
