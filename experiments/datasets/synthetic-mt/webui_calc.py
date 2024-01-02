@@ -131,13 +131,13 @@ def get_embedings(conv: str):
     return embedings.squeeze().cpu().numpy().tolist()
 
 
-def accept_data(current_conversation):
+def accept_data(current_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3):
     if not current_conversation:
         gr.Error("No data to accept")
-        return
+        return current_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3
 
     if not user_query_check(current_conversation) or not assistant_response_check(current_conversation):
-        return
+        return current_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3
 
     # Insert current conversation into the database
     collection.insert(
@@ -162,7 +162,7 @@ def reject_data():
 # `USER` query check
 def user_query_check(conversation: str):
     user_queries = [conversation for conversation in conversation.split("\n") if conversation.startswith("USER:")]
-    regex = re.compile("[^a-zA-Z,.: ]")
+    regex = re.compile("[^a-zA-Z0-9-,.: ]")
     for query in user_queries:
         if regex.search(query):
             gr.Error("`USER:` query regex check failed.")
@@ -256,11 +256,11 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         prev_conversation_3 = gr.Textbox(
             label="Conversation 3", placeholder="", interactive=False)
 
-    accept_btn.click(accept_data, inputs=[mt_conversation], outputs=[
-                     mt_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3])
-    reject_btn.click(reject_data, outputs=[
-                     mt_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3])
+    accept_btn.click(accept_data,
+                     inputs=[mt_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3], 
+                     outputs=[mt_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3])
+    reject_btn.click(reject_data, outputs=[mt_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3])
 
 if __name__ == "__main__":
     Thread(target=push_data_to_queue, args=(data_points,)).start()
-    demo.launch(share=True)
+    demo.launch()
