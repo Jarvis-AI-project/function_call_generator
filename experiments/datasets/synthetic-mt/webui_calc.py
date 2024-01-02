@@ -94,7 +94,7 @@ def push_data_to_queue(data_points: Queue):
             try:
                 data_points.put(response.text)
             except Exception as e:
-                raise gr.Info(e)
+                return gr.Info(e)
            
         else:
             sleep(1)
@@ -164,7 +164,7 @@ def user_query_check(conversation: str):
     regex = re.compile("[^a-zA-Z0-9-?,.: ]")
     for query in user_queries:
         if regex.search(query):
-            raise gr.Info("`USER:` query regex check failed.")
+            return gr.Info("`USER:` query regex check failed.")
 
     return True
         
@@ -217,7 +217,7 @@ def assistant_response_check(conversation: str):
 
     for response in assistant_responses:
         if response.endswith("</s>") == False:
-            raise gr.Info("`ASSISTANT:` does not end with </s>.")
+            return gr.Info("`ASSISTANT:` does not end with </s>.")
             
             
         calculator_matches = re.findall(r"<calculator>(.*?)<\/calculator>", response)
@@ -226,13 +226,13 @@ def assistant_response_check(conversation: str):
                 calc_input = calculator_block.split("</s>")[0].strip()
                 calc_output = calculator_block.split("</s>")[1].strip()
                 if calc_input is None or calc_output is None:
-                    raise gr.Info("Info in calculator block")
+                    return gr.Info("Info in calculator block")
                     
 
                 calc_input_regex = re.compile("[^0-9+-/*.() ]")
                 calc_output_regex = re.compile("[^0-9. ]")
                 if calc_input_regex.search(calc_input) or calc_output_regex.search(calc_output):
-                    raise gr.Info("Info in calculator block")
+                    return gr.Info("Info in calculator block")
                     
 
                 evaluated_input = eval(calc_input)
@@ -240,7 +240,7 @@ def assistant_response_check(conversation: str):
                     evaluated_input = int(evaluated_input)
                     
                 if evaluated_input != eval(calc_output):
-                    raise gr.Info("The calculation is not correct.")
+                    return gr.Info("The calculation is not correct.")
                     
 
     return True
