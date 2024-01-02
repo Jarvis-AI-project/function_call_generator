@@ -8,6 +8,7 @@ import torch
 import google.generativeai as genai
 from time import sleep
 import gradio as gr
+import re
 import os
 from pymilvus import connections, Collection, db
 from dotenv import load_dotenv
@@ -15,7 +16,6 @@ from transformers import AutoTokenizer, AutoModel
 import platform
 
 if platform.system()=="Linux":
-
     _MODEL_PATH = "/mnt/nvme/MODELS/EMBEDINGS/UAE-Large-V1/"
     tokenizer = AutoTokenizer.from_pretrained(_MODEL_PATH, device="cuda:1")
     bert_model = AutoModel.from_pretrained(_MODEL_PATH, device_map="cuda:1", low_cpu_mem_usage=True)
@@ -136,6 +136,9 @@ def accept_data(current_conversation):
         gr.Error("No data to accept")
         return
 
+    if not user_query_check(current_conversation) or not assistant_response_check(current_conversation):
+        return
+
     # Insert current conversation into the database
     collection.insert(
         [{
@@ -156,6 +159,80 @@ def reject_data():
     similar_conversations = get_to_3_similar_conversations(new_conversation)
     return new_conversation, similar_conversations[0], similar_conversations[1], similar_conversations[2]
 
+# `USER` query check
+def user_query_check(conversation: str):
+    user_queries = [conversation for conversation in conversation.split("\n") if conversation.startswith("USER:")]
+    regex = re.compile("[^a-zA-Z,.: ]")
+    for query in user_queries:
+        if regex.search(query):
+            gr.Error("`USER:` query regex check failed.")
+
+# `ASSISTANT` response check
+# def assistant_response_check(conversation: str):
+#     assistant_responses = [conversation for conversation in conversation.split("\n") if conversation.startswith("ASSISTANT:")]
+#     for response in assistant_responses:
+#         # Check that it ends with </s>.
+#         if response.endswith("</s>") == False:
+#             gr.Error("`ASSISTANT:` does not end with </s>.")
+#             return False
+
+#         # If response contains <calculator> then it should also contain </calculator>
+#         if "<calculator>" in response and "</calculator>" not in response:
+#             gr.Error("`ASSISTANT:` contains <calculator> but not </calculator>.")
+#             return False
+#         if "</calculator>" in response and "<calculator>" not in response:
+#             gr.Error("`ASSISTANT:` contains </calculator> but not <calculator>.")
+#             return False
+
+#         if "<calculator>" in response and "</calculator>" in response:
+            
+#             # Between <calculator> and </calculator> there should be a </s> token.
+#             if "</s>" not in response[response.index("<calculator>")+12:response.index("</calculator>")+13]:
+#                 gr.Error("Between <calculator> and </calculator> there should be a </s> token.")
+#                 return False
+            
+#             # Between <calculator> and </s> token there should be a calculation.
+#             regex = re.compile("[^0-9+-/* ]")
+#             calculator_input = response[response.index("<calculator>")+12:response.index("</s>")]
+#             calculator_output = response[response.index("</s>")+4:response.index("</calculator>")]
+#             if regex.search(calculator_input):
+#                 gr.Error("Between <calculator> and </s> token there should be a calculation.")
+#                 return False
+
+#             if regex.search(calculator_output):
+#                 gr.Error("Between </s> and </calculator> there should be a calculation.")
+#                 return False
+
+#             evaluated_input = eval(calculator_input)
+#             if str(evaluated_input).split(".")[1] == "0":
+#                 evaluated_input = int(evaluated_input)
+#             if evaluated_input != eval(calculator_output):
+#                 gr.Error("The calculation is not correct.")
+#                 return False
+
+def assistant_response_check(conversation: str):
+    assistant_responses = [conversation for conversation in conversation.split("\n") if conversation.startswith("ASSISTANT:")]
+
+    for response in assistant_responses:
+        calculator_matches = re.findall(r"<calculator>(.*?)<\/calculator>", response)
+        if calculator_matches:
+            for calculator_block in calculator_matches:
+                
+                calc_input = calculator_block.split("</s>")[0].strip()
+                calc_output = calculator_block.split("</s>")[1].strip()
+                if calc_input is None or calc_output is None:
+                    gr.Error("ERROR in calculator block")
+
+                calc_input_regex = re.compile("[^0-9+-/* ]")
+                calc_output_regex = re.compile("[^0-9 ]")
+                if calc_input_regex.search(calc_input) or calc_output_regex.search(calc_output):
+                    gr.Error("ERROR in calculator block")
+
+                evaluated_input = eval(calc_input)
+                if str(float(evaluated_input)).split(".")[1] == "0":
+                    evaluated_input = int(evaluated_input)
+                if evaluated_input != eval(calc_output):
+                    gr.Error("The calculation is not correct.")
 
 with gr.Blocks(theme=gr.themes.Soft()) as demo:
     gr.HTML("""
