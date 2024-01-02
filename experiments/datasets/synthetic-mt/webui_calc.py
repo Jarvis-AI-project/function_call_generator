@@ -235,11 +235,11 @@ def assistant_response_check(conversation: str):
                     return gr.Info("Info in calculator block")
                     
 
-                evaluated_input = eval(calc_input)
+                evaluated_input = round(eval(calc_input),2)
                 if str(float(evaluated_input)).split(".")[1] == "0":
                     evaluated_input = int(evaluated_input)
                     
-                if evaluated_input != eval(calc_output):
+                if evaluated_input != round(eval(calc_input),2):
                     return gr.Info("The calculation is not correct.")
                     
 
