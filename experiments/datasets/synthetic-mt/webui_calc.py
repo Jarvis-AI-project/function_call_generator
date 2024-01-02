@@ -94,8 +94,8 @@ def push_data_to_queue(data_points: Queue):
             try:
                 data_points.put(response.text)
             except Exception as e:
-                gr.Error(e)
-                pass
+                raise gr.Info(e)
+           
         else:
             sleep(1)
 
@@ -133,7 +133,6 @@ def get_embedings(conv: str):
 
 def accept_data(current_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3):
     if not current_conversation:
-        gr.Error("No data to accept")
         return current_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3
 
     if not user_query_check(current_conversation) or not assistant_response_check(current_conversation):
@@ -162,11 +161,10 @@ def reject_data():
 # `USER` query check
 def user_query_check(conversation: str):
     user_queries = [conversation.replace("USER: ", "") for conversation in conversation.split("\n") if conversation.startswith("USER:")]
-    regex = re.compile("[^a-zA-Z0-9-,.: ]")
+    regex = re.compile("[^a-zA-Z0-9-?,.: ]")
     for query in user_queries:
         if regex.search(query):
-            gr.Error("`USER:` query regex check failed.")
-            return False
+            raise gr.Info("`USER:` query regex check failed.")
 
     return True
         
@@ -177,22 +175,22 @@ def user_query_check(conversation: str):
 #     for response in assistant_responses:
 #         # Check that it ends with </s>.
 #         if response.endswith("</s>") == False:
-#             gr.Error("`ASSISTANT:` does not end with </s>.")
+#             gr.Info("`ASSISTANT:` does not end with </s>.")
 #             return False
 
 #         # If response contains <calculator> then it should also contain </calculator>
 #         if "<calculator>" in response and "</calculator>" not in response:
-#             gr.Error("`ASSISTANT:` contains <calculator> but not </calculator>.")
+#             gr.Info("`ASSISTANT:` contains <calculator> but not </calculator>.")
 #             return False
 #         if "</calculator>" in response and "<calculator>" not in response:
-#             gr.Error("`ASSISTANT:` contains </calculator> but not <calculator>.")
+#             gr.Info("`ASSISTANT:` contains </calculator> but not <calculator>.")
 #             return False
 
 #         if "<calculator>" in response and "</calculator>" in response:
             
 #             # Between <calculator> and </calculator> there should be a </s> token.
 #             if "</s>" not in response[response.index("<calculator>")+12:response.index("</calculator>")+13]:
-#                 gr.Error("Between <calculator> and </calculator> there should be a </s> token.")
+#                 gr.Info("Between <calculator> and </calculator> there should be a </s> token.")
 #                 return False
             
 #             # Between <calculator> and </s> token there should be a calculation.
@@ -200,18 +198,18 @@ def user_query_check(conversation: str):
 #             calculator_input = response[response.index("<calculator>")+12:response.index("</s>")]
 #             calculator_output = response[response.index("</s>")+4:response.index("</calculator>")]
 #             if regex.search(calculator_input):
-#                 gr.Error("Between <calculator> and </s> token there should be a calculation.")
+#                 gr.Info("Between <calculator> and </s> token there should be a calculation.")
 #                 return False
 
 #             if regex.search(calculator_output):
-#                 gr.Error("Between </s> and </calculator> there should be a calculation.")
+#                 gr.Info("Between </s> and </calculator> there should be a calculation.")
 #                 return False
 
 #             evaluated_input = eval(calculator_input)
 #             if str(float(evaluated_input)).split(".")[1] == "0":
 #                 evaluated_input = int(evaluated_input)
 #             if evaluated_input != eval(calculator_output):
-#                 gr.Error("The calculation is not correct.")
+#                 gr.Info("The calculation is not correct.")
 #                 return False
 
 def assistant_response_check(conversation: str):
@@ -219,8 +217,8 @@ def assistant_response_check(conversation: str):
 
     for response in assistant_responses:
         if response.endswith("</s>") == False:
-            gr.Error("`ASSISTANT:` does not end with </s>.")
-            return False
+            raise gr.Info("`ASSISTANT:` does not end with </s>.")
+            
             
         calculator_matches = re.findall(r"<calculator>(.*?)<\/calculator>", response)
         if calculator_matches:
@@ -228,22 +226,22 @@ def assistant_response_check(conversation: str):
                 calc_input = calculator_block.split("</s>")[0].strip()
                 calc_output = calculator_block.split("</s>")[1].strip()
                 if calc_input is None or calc_output is None:
-                    gr.Error("ERROR in calculator block")
-                    return False
+                    raise gr.Info("Info in calculator block")
+                    
 
-                calc_input_regex = re.compile("[^0-9+-/* ]")
-                calc_output_regex = re.compile("[^0-9 ]")
+                calc_input_regex = re.compile("[^0-9+-/*.() ]")
+                calc_output_regex = re.compile("[^0-9. ]")
                 if calc_input_regex.search(calc_input) or calc_output_regex.search(calc_output):
-                    gr.Error("ERROR in calculator block")
-                    return False
+                    raise gr.Info("Info in calculator block")
+                    
 
                 evaluated_input = eval(calc_input)
                 if str(float(evaluated_input)).split(".")[1] == "0":
                     evaluated_input = int(evaluated_input)
                     
                 if evaluated_input != eval(calc_output):
-                    gr.Error("The calculation is not correct.")
-                    return False
+                    raise gr.Info("The calculation is not correct.")
+                    
 
     return True
 
