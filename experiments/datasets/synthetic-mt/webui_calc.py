@@ -217,6 +217,9 @@ def assistant_response_check(conversation: str):
     assistant_responses = [conversation.replace("ASSISTANT: ", "") for conversation in conversation.split("\n") if conversation.startswith("ASSISTANT:")]
 
     for response in assistant_responses:
+        if response.endswith("</s>") == False:
+            gr.Error("`ASSISTANT:` does not end with </s>.")
+            
         calculator_matches = re.findall(r"<calculator>(.*?)<\/calculator>", response)
         if calculator_matches:
             for calculator_block in calculator_matches:
