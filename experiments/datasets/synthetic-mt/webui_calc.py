@@ -166,6 +166,7 @@ def user_query_check(conversation: str):
     for query in user_queries:
         if regex.search(query):
             gr.Error("`USER:` query regex check failed.")
+            return False
 
     return True
         
@@ -219,6 +220,7 @@ def assistant_response_check(conversation: str):
     for response in assistant_responses:
         if response.endswith("</s>") == False:
             gr.Error("`ASSISTANT:` does not end with </s>.")
+            return False
             
         calculator_matches = re.findall(r"<calculator>(.*?)<\/calculator>", response)
         if calculator_matches:
@@ -227,11 +229,13 @@ def assistant_response_check(conversation: str):
                 calc_output = calculator_block.split("</s>")[1].strip()
                 if calc_input is None or calc_output is None:
                     gr.Error("ERROR in calculator block")
+                    return False
 
                 calc_input_regex = re.compile("[^0-9+-/* ]")
                 calc_output_regex = re.compile("[^0-9 ]")
                 if calc_input_regex.search(calc_input) or calc_output_regex.search(calc_output):
                     gr.Error("ERROR in calculator block")
+                    return False
 
                 evaluated_input = eval(calc_input)
                 if str(float(evaluated_input)).split(".")[1] == "0":
@@ -239,6 +243,7 @@ def assistant_response_check(conversation: str):
                     
                 if evaluated_input != eval(calc_output):
                     gr.Error("The calculation is not correct.")
+                    return False
 
     return True
 
