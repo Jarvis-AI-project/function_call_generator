@@ -52,8 +52,8 @@ I want some data to train my language model. The model can only perform simple c
 Example:
 USER: can you split a bill for me
 ASSISTANT: Of course! I'd be happy to help you split a bill. Please provide me with the total amount of the bill and the number of people you want to split it among. </s>
-USER: the total amount is 500 dollars and split it between 5 people
-ASSISTANT: Each person should contribute <calculator> 500/5 </s> 100 </calculator> 100 dollars.</s>
+USER: the total amount is five hundred dollars and split it between five people
+ASSISTANT: Each person should contribute <calculator> 500/5 </s> 100 </calculator> hundred dollars.</s>
 
 Generate more such conversations to train the assistant. 
 - The main calculation should be surrounded by <calculator> and </calculator> which will not be shown to the user and is evaluated by a computer. After the assistant stops talking write this </s>
@@ -63,7 +63,9 @@ Generate more such conversations to train the assistant.
 - Assume this system is being used to do day-to-day tasks.
 - Do not explain your calculation.
 - Avoid generating data points that require up-to-date knowledge.
-- Only output one conversation at a time. 
+- User query can't contain symbols such as (%, $), etc. Instead, it should use the corresponding word representation of the symbols eg. dollar for $ and percentage for %
+- If the user query contains a number or is in numerical format, convert it into words eg. 100 -> hundred or $500 -> five hundred dollars.
+- Output only one conversation at a time. 
 """
 
 
@@ -153,4 +155,4 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
     
 if __name__ == "__main__":
     Thread(target=push_data_to_queue, args=(data_points,)).start()
-    demo.launch()
+    demo.launch(share=True)
