@@ -204,7 +204,7 @@ def user_query_check(conversation: str):
 #                 return False
 
 #             evaluated_input = eval(calculator_input)
-#             if str(evaluated_input).split(".")[1] == "0":
+#             if str(float(evaluated_input)).split(".")[1] == "0":
 #                 evaluated_input = int(evaluated_input)
 #             if evaluated_input != eval(calculator_output):
 #                 gr.Error("The calculation is not correct.")
