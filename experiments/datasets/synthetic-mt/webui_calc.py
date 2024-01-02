@@ -2,24 +2,28 @@
 This file is used to generate mt data for JARVIS for `calculator`.
 """
 
-# import streamlit as st
 from threading import Thread
 from queue import Queue
 import google.generativeai as genai
 import json
+from time import sleep
+import gradio as gr
+from ngram import NGram
+from sklearn.metrics.pairwise import cosine_similarity
+from transformers import AutoTokenizer, AutoModel
 
-# st.set_page_config(
-#     layout="wide",
-#     page_title="ToolFormers (Calculator)",
-# )
+tokenizer = AutoTokenizer.from_pretrained(
+    "WhereIsAI/UAE-Large-V1", device="mps")
+bert_model = AutoModel.from_pretrained("WhereIsAI/UAE-Large-V1",
+                                       device_map="mps")
+
+
 data_points = Queue(maxsize=4)
-# st.header("ToolFormers (Calculator)")
-# st.session_state.data = None
 
 
 genai.configure(api_key="AIzaSyDtqp125rVbUDH-I3ooH7lcFabsa3fu0vI")
 
-# Set up the model
+
 generation_config = {
     "temperature": 0.9,
     "max_output_tokens": 1024,
@@ -28,88 +32,99 @@ generation_config = {
 model = genai.GenerativeModel(
     model_name="gemini-pro",
     generation_config=generation_config
+
 )
 
-prompt = [
-    "{\"role\": \"system\", \"content\": \"Your task is to generate data to train a virtual assistant that has access to calculator. It can only perform the following operations: addition '+', subtraction '-', multiplication '*', division '/ ', power '**'). It can also use these operations to perform complicated computations. Don't include any other symbol not defined.\"},\n {\"user\": \"Jarvis, can you help me split the restaurant bill among three people? The total is $120.\", \"assistant\": \"the answer is <calculator> 2+2 </s> 4 </calculator>four. </s>\"},\n\t{\"user\": \"what is the square root of 4\", \"assistant\": \"the square root of 4 is <calculator> 4** 0.5 </s> 2. </s>\"},\n\t{\"user\": \"Jarvis, can you help me split the restaurant bill among three people? The total is 120 dollars.\", \"assistant\": \"Certainly, sir. Let me divide that for you. <calculator> 120 / 3 </s> 40 </calculator>Each person should contribute 40.</s> Anything else you'd like assistance with?\"},\n\t{\"user\": \"Hey Jarvis, I'm planning to buy a new phone. It costs 800 dolars, and the sales tax is 8 percent. Can you calculate the total amount I'll be paying?\", \"assistant\": \"Certainly, sir. Let me calculate that for you. <calculator> 800 + (800 * 0.08) </s> 864 </calculator>The total amount, including tax, is 864 dollars.</s> Is there anything else you'd like to know?\"},\n\t{\"user\": \"Jarvis, can you help me figure out my monthly expenses? I earn 3000 dollars, and I want to save 20 percent of my income.\", \"assistant\": \"Absolutely, sir. Let me calculate that for you. <calculator> 3000 * 0.20 </s> 600 </calculator>You should save 600 dollars each month.</s>\"},\nwrite more such user assistant data to train the assistant. queries shouldn't include any symbols beside + - * / .only generate one example at a time.\n"]
+prompt = """
 
-print(prompt)
+I want some data to train my language model. The model can only perform simple calculations including plus, minus, multiply, divide and power. the operations are represented by the signs + - * / **. don't include any other signs in the data.
 
-# def push_data_to_queue(data_points: Queue):
-#     while True:
-#         response = model.generate_content(prompt)
-#         try:
-#             response = json.loads(response.text)
-#             data_points.put(response)
-#             print(data_points.qsize())
-#         except json.decoder.JSONDecodeError:
-#             return push_data_to_queue(data_points)
-        
-# push_data_to_queue(data_points)
+Example:
+USER: can you split a bill for me
+ASSISTANT: Of course! I'd be happy to help you split a bill. Please provide me with the total amount of the bill and the number of people you want to split it among. </s>
+USER: the total amount is 500 dollars and split it between 5 people
+ASSISTANT: Each person should contribute <calculator> 500/5 </s> 100 </calculator> 100 dollars.</s>
+
+Generate more such conversations to train the assistant. 
+- The main calculation should be surrounded by <calculator> and </calculator> which will not be shown to the user and is evaluated by a computer. After the assistant stops talking write this </s>
+- Data should be multi-dialog. 
+- The main calculation will not be visible to the user. 
+- Keep your dialogs short and be frank. 
+- Assume this system is being used to do day-to-day tasks.
+- Do not explain your calculation.
+- Avoid generating data points that require up-to-date knowledge.
+- Only output one conversation at a time. 
+
+"""
 
 
 def push_data_to_queue(data_points: Queue):
     while True:
-        if data_points.qsize() <= data_points.maxsize:
+        if not data_points.full():
             response = model.generate_content(prompt)
             try:
-                response = json.loads(response.text)
-                data_points.put(response)
+                response = response.text
                 print(response)
                 print(data_points.qsize())
-
-            except json.decoder.JSONDecodeError:
-                return push_data_to_queue(data_points)
-           
-    
-        while not data_points.empty():
-            try:
-                data_point = data_points.get()
-                print(data_point)
-                print(data_points.qsize())
-                yield data_point
-            finally:
-                data_points.task_done()
+                data_points.put(response)
+            except Exception as e:
+                gr.Error(e)
+                pass
+        else:
+            sleep(1)
 
 
-for i,j in enumerate(push_data_to_queue(data_points)):
-    print( "This is data",j)
+def get_ngram(user, assistant):
+    """Ngram Similarity of two text chunks."""
+    return round(NGram.compare(user, assistant, N=2), 2)
 
 
-# def extract_all_data_points(data_points: Queue):
-#     """Extract all data points from the queue"""
-#     while not data_points.empty():
-#         data_point = data_points.get()
-#         print(data_point)
-#         print(data_points.qsize())
-#         yield data_point
+def get_bert_embedding(user, assistant):
+    """BERT Similarity of two text chunks."""
+    user = tokenizer(user, return_tensors="pt", padding=True, truncation=True)
+    user = {k: v.to(bert_model.device) for k, v in user.items()}
+    assistant = tokenizer(assistant, return_tensors="pt",
+                          padding=True, truncation=True)
+    assistant = {k: v.to(bert_model.device) for k, v in assistant.items()}
+
+    user_embeddings = bert_model(**user).last_hidden_state[:, -1]
+    assistant_embeddings = bert_model(**assistant).last_hidden_state[:, -1]
+    return round(cosine_similarity(user_embeddings.detach().cpu().numpy(), assistant_embeddings.detach().cpu().numpy())[0][0], 5)
 
 
-# Thread(target=push_data_to_queue, args=(data_points,))
+def extract_and_compare():
+    data = data_points.get()
+    user = data
+    assistant = data
+    similarity = get_bert_embedding(user, assistant)
+    output_ngram = get_ngram(user, assistant)
+    return user, assistant, similarity, output_ngram
 
 
+with gr.Blocks(theme=gr.themes.Soft()) as demo:
+    gr.HTML("""
+    <h1 style="text-align: center; user-select:None; ">DATASET GENERATOR</h1>
+    """)
 
-# for i, j in enumerate(extract_all_data_points(data_points)):
-#         print(j)
-# def write_data_point():
-#     """Write a data point to the web UI"""
+    with gr.Row():
 
-    # st.session_state.data = data_point
-    # st.markdown("### USER")
-    # st.text(data_point["user"])
-    # st.markdown("### JARVIS")
-    # st.write(data_point["assistant"])
+       data= gr.Textbox(label="Data", lines=20, placeholder="Data will appear here", interactive=True)
+    with gr.Row():
+
+        output_ngram = gr.Textbox(
+            label="Ngram Similarity Score", interactive=False)
+        output_bert = gr.Textbox(
+            label="BERT Similarity Score", interactive=False)
+    with gr.Row():
+
+        accept_btn = gr.Button(value="Accept")
+        reject_btn = gr.Button(value="Reject")
+        accept_btn.click(
+            extract_and_compare, outputs=[data,output_ngram, output_bert])
 
 
-# write_data_point()
+if __name__ == "__main__":
 
-# ok_btn = st.button("OK", type="primary")
-# reject_btn = st.button("Reject", type="secondary")
+    Thread(target=push_data_to_queue, args=(data_points,)).start()
 
-# if ok_btn or st.session_state.data is None:
-#     print("Writing to Json file")
-#     write_data_point()
-
-# if reject_btn:
-#     print("Rejecting")
-#     write_data_point()
+    demo.launch()
