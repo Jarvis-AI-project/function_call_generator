@@ -162,7 +162,7 @@ def reject_data():
 # `USER` query check
 def user_query_check(conversation: str):
     user_queries = [conversation for conversation in conversation.split("\n") if conversation.startswith("USER:")]
-    regex = re.compile("[^a-zA-Z,.: ]")
+    regex = re.compile("[^a-zA-Z0-9-,.: ]")
     for query in user_queries:
         if regex.search(query):
             gr.Error("`USER:` query regex check failed.")
