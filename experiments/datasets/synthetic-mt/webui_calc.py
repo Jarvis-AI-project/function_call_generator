@@ -161,11 +161,14 @@ def reject_data():
 
 # `USER` query check
 def user_query_check(conversation: str):
-    user_queries = [conversation for conversation in conversation.split("\n") if conversation.startswith("USER:")]
+    user_queries = [conversation.replace("USER: ", "") for conversation in conversation.split("\n") if conversation.startswith("USER:")]
     regex = re.compile("[^a-zA-Z0-9-,.: ]")
     for query in user_queries:
         if regex.search(query):
             gr.Error("`USER:` query regex check failed.")
+
+    return True
+        
 
 # `ASSISTANT` response check
 # def assistant_response_check(conversation: str):
@@ -211,13 +214,12 @@ def user_query_check(conversation: str):
 #                 return False
 
 def assistant_response_check(conversation: str):
-    assistant_responses = [conversation for conversation in conversation.split("\n") if conversation.startswith("ASSISTANT:")]
+    assistant_responses = [conversation.replace("ASSISTANT: ", "") for conversation in conversation.split("\n") if conversation.startswith("ASSISTANT:")]
 
     for response in assistant_responses:
         calculator_matches = re.findall(r"<calculator>(.*?)<\/calculator>", response)
         if calculator_matches:
             for calculator_block in calculator_matches:
-                
                 calc_input = calculator_block.split("</s>")[0].strip()
                 calc_output = calculator_block.split("</s>")[1].strip()
                 if calc_input is None or calc_output is None:
@@ -231,8 +233,11 @@ def assistant_response_check(conversation: str):
                 evaluated_input = eval(calc_input)
                 if str(float(evaluated_input)).split(".")[1] == "0":
                     evaluated_input = int(evaluated_input)
+                    
                 if evaluated_input != eval(calc_output):
                     gr.Error("The calculation is not correct.")
+
+    return True
 
 with gr.Blocks(theme=gr.themes.Soft()) as demo:
     gr.HTML("""
