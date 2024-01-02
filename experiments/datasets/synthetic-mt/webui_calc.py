@@ -10,7 +10,7 @@ import google.generativeai as genai
 from time import sleep
 import gradio as gr
 import os
-from pymilvus import connections, Collection
+from pymilvus import connections, Collection, db
 # from ngram import NGram
 # from sklearn.metrics.pairwise import cosine_similarity
 from dotenv import load_dotenv
@@ -27,14 +27,16 @@ load_dotenv(".env")
 
 genai.configure(api_key="AIzaSyDtqp125rVbUDH-I3ooH7lcFabsa3fu0vI")
 
+db.using_database("JARVIS")
 connections.connect(
+    alias="default",
     host = os.getenv("MILVUS_HOST"),
     port = 19530,
     user=os.getenv("MILVUS_USER"),
     password=os.getenv("MILVUS_PASSWORD"),
 )
 
-collection = Collection("JARVIS_calculator", using="default")
+collection = Collection("calculator", using="default")
 
 generation_config = {
     "temperature": 0.9,
