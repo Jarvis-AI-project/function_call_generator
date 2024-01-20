@@ -5,4 +5,5 @@ experiments/datasets/validation/test.ipynb
 **/test*
 **/temp*
 **/wandb*
+experiments/output
 models/
