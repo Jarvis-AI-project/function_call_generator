@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "name": "jupyter notebook debugger",
+            "type": "python",
+            "request": "launch",
+            "justMyCode": false,
+        }
+    ]
+}

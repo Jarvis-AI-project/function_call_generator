@@ -12,5 +12,6 @@
     "pylint.args": [
         "\"pylint.args\": [\"--max-line-length=150\"]"
     ],
-    "pythonIndent.trimLinesWithOnlyWhitespace": true
+    "pythonIndent.trimLinesWithOnlyWhitespace": true,
+    "jupyter.debugJustMyCode": false
 }

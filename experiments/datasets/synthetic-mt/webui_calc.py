@@ -132,10 +132,7 @@ def get_embedings(conv: str):
 
 
 def accept_data(current_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3):
-    if not current_conversation:
-        return current_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3
-
-    if not user_query_check(current_conversation) or not assistant_response_check(current_conversation):
+    if not current_conversation or not user_query_check(current_conversation) or not assistant_response_check(current_conversation):
         return current_conversation, prev_conversation_1, prev_conversation_2, prev_conversation_3
 
     # Insert current conversation into the database
@@ -242,7 +239,6 @@ def assistant_response_check(conversation: str):
                 if evaluated_input != round(eval(calc_input),2):
                     return gr.Info("The calculation is not correct.")
                     
-
     return True
 
 with gr.Blocks(theme=gr.themes.Soft()) as demo:
