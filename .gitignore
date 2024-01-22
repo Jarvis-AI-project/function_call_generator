@@ -2,7 +2,7 @@
 *.pyc
 .DS_Store
 experiments/datasets/validation/test.ipynb
-**/test*
+**/test.*
 **/temp*
 **/wandb*
 experiments/output

@@ -50,7 +50,6 @@ generation_config = {
 model = genai.GenerativeModel(
     model_name="gemini-pro",
     generation_config=generation_config
-
 )
 
 prompt = """
@@ -79,10 +78,10 @@ Generate more such conversations to train the assistant.
 - Avoid generating data points that require up-to-date knowledge.
 - User query can't contain any kind symbols such as (%, $,₹, .,), etc. Instead, it should use the corresponding word representation of the symbols eg. dollar for $ and percentage for %
 - If the user query contains currency or a number, convert it into words eg. ₹ 100 -> one Hundred rupees , 3500 rupees -> thirty-five hundred rupees, ₹ 500 -> five hundred rupees , 0.5 -> or 5 -> five  .
-- Always use currency as rupees 
+- Always use currency as rupees
 - the user query should not contain </s> eg. Calculate the cost of a dozen eggs for me.
 - the assistant response should contain  </s> after numbers  in between the opening and closing tags of <calculator> and </calculator> and also after end of the response. eg. ASSISTANT: The cost of a dozen eggs would be <calculator> 1*12 </s> 12 </calculator> twelve rupees. </s>
-- Output only one conversation at a time. 
+- Output only one conversation at a time.
 
 """
 
