@@ -1,10 +1,11 @@
-"""This is python file for `generate-v1.ipynb` notebook."""
+"""This is python file for `generate-v1.ipynb` notebook. Used to generate data for `calculator_v1` collection."""
 from dotenv import load_dotenv
 import openai
 import google.generativeai as genai
 import os
-import asyncio
+from threading import Thread
 import re
+import time
 from pymilvus import connections, FieldSchema, CollectionSchema, DataType, Collection, utility, db
 load_dotenv('../.env')
 
@@ -178,22 +179,29 @@ def test_response(text):
     return assistant_response_endswith_eos_token(text) or stop_token_between_calculator_tags(text) or number_of_open_calc_tags_equal_number_of_close_calc_tags(text) or user_input_should_not_contain_special_token(text) or number_of_user_inputs_equal_number_of_assistant_responses(text)
 
 ## Generate Data
+global num
+num=0
 def insert_data_point():
+    global num
     try:
         response = model.generate_content(SYSTEM_PROMPT)
         embeding = get_embeding(response.text)
+
         if not test_response(response.text):
             collection.insert({
                 "embeding": embeding,
                 "conversation": response.text
             })
+        num += 1
+        print(f'Inserted data point {num}')
     except Exception as e:
         print(e)
 
-async def run_insert_data_point():
+if __name__ == '__main__':
     while True:
-        await insert_data_point()
-        await asyncio.sleep(1/MAX_QUERIES_PER_MINUTE)
-
-if __name__ == "__main__":
-    asyncio.run(run_insert_data_point())
+        threads = [Thread(target=insert_data_point) for _ in range(MAX_QUERIES_PER_MINUTE)]
+        for thread in threads:
+            thread.start()
+        time.sleep(60)
+        for thread in threads:
+            thread.join()
